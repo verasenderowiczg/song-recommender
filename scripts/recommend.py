@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
 
     if not args.index_dir.exists():
-        print(f"Index not found at {args.index_dir}. Run scripts/build_index.py first.")
+        print(f"Index not found at {args.index_dir}. Run scripts/build_index_from_summary.py first.")
         sys.exit(1)
 
     scaler, nn, vectors, metadata = load_index(args.index_dir)
