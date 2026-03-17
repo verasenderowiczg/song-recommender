@@ -1,5 +1,5 @@
-# Data (user downloads MSD separately)
-data/
+# Data (user downloads MSD separately; only root-level folder)
+/data/
 *.h5
 *.hdf5
 
@@ -37,10 +37,10 @@ venv/
 *.swp
 *.swo
 
-# Index artifacts (built from data)
+# Index artifacts (built from data; root-level folder only)
 *.pkl
 *.joblib
-index/
+/index/
 
 # OS
 .DS_Store
