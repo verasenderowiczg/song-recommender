@@ -46,24 +46,90 @@ You need: `tables` (PyTables, for reading MSD HDF5 files), `pandas`, `numpy`, `s
 
 The recommender needs the **1% subset** of the Million Song Dataset (~10,000 tracks, ~1.8 GB compressed).
 
-1. **Download** the subset:
-   - Direct link: [Million Song Subset](http://labrosa.ee.columbia.edu/~dpwe/tmp/millionsongsubset.tar.gz)  
-   - Or from the official page: [Getting the dataset → Subset](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset#subset)
+### 4.1 Download
 
-2. **Extract** the archive. You will get a folder (often named `MillionSongSubset`) that contains a `data` directory. Inside `data`, the `.h5` files are organised in subfolders (e.g. `A/B/C/TRXXXXX.h5`).
+- **Direct link:** [millionsongsubset.tar.gz](http://labrosa.ee.columbia.edu/~dpwe/tmp/millionsongsubset.tar.gz) (~1.8 GB)  
+- Or open the [official “Getting the dataset” page](http://labrosa.ee.columbia.edu/millionsong/pages/getting-dataset#subset) and use the “Million Song Subset” link there.
 
-3. **Place the data** so the project can find it. Either:
-   - **Option A:** Put the **contents** of that `data` folder (all the subfolders with `.h5` files) directly inside the repo’s `data/` folder:
-     ```text
-     song-recommender/
-     └── data/
-         ├── A/
-         ├── B/
-         └── ...   (all .h5 files somewhere under here)
-     ```
-   - **Option B:** Keep the subset anywhere you like (e.g. `~/Downloads/MillionSongSubset/data`) and pass that path in the next step.
+If the direct link fails (e.g. 500 error or timeout), try again later—the LabROSA server can be flaky. You can also search for “Million Song Dataset subset” for mirrors (e.g. Academic Torrents) if needed.
+
+From the terminal you can download with (optional):
+
+```bash
+curl -L -o millionsongsubset.tar.gz "http://labrosa.ee.columbia.edu/~dpwe/tmp/millionsongsubset.tar.gz"
+```
+
+(Or use your browser and save the file.)
+
+### 4.2 Extract
+
+From the folder where you saved the `.tar.gz` file:
+
+```bash
+tar -xzf millionsongsubset.tar.gz
+```
+
+You should get a folder named **`MillionSongSubset`**. The `.h5` files can be in either of these layouts (depending on the subset version):
+
+- **Layout 1:** `MillionSongSubset/A/`, `MillionSongSubset/B/`, … (letter folders directly inside `MillionSongSubset`, with `.h5` files in subfolders like `A/R/R/TRXXXXX.h5`).
+- **Layout 2:** `MillionSongSubset/data/A/`, `MillionSongSubset/data/B/`, … (letter folders inside a `data` subfolder).
+
+The folder the project needs is the one that **directly contains** the letter folders (`A`, `B`, `C`, …): that’s either **`MillionSongSubset`** (layout 1) or **`MillionSongSubset/data`** (layout 2). You may also see `MillionSongSubset/AdditionalFiles/`; we don’t use it.
+
+**Windows:** If `tar` isn’t available, use 7-Zip or another tool to extract the `.tar.gz`, or use Git Bash which includes `tar`.
+
+### 4.3 Place the data so the project can find it
+
+Pick one of these:
+
+- **Option A — use the repo’s `data/` folder (simplest for Step 5)**  
+  Move the **letter folders** (`A`, `B`, `C`, …) into the repo’s `data/` folder. Those folders are either directly inside `MillionSongSubset` (layout 1) or inside `MillionSongSubset/data/` (layout 2). Result should look like:
+
+  ```text
+  song-recommender/
+  └── data/
+      ├── A/
+      ├── B/
+      ├── C/
+      └── ...   (more letter folders, each with .h5 files inside)
+  ```
+
+  So you do **not** put the whole `MillionSongSubset` folder inside `data/`—only the letter folders (and their contents).
+
+- **Option B — keep the subset where it is**  
+  Leave `MillionSongSubset` where it is (e.g. in the repo or in `~/Downloads`). In Step 5 you’ll pass the path that **directly contains** the letter folders:
+  - If you have `MillionSongSubset/A/`, `MillionSongSubset/B/`, … use: `--data-dir MillionSongSubset` (or the full path, e.g. `--data-dir ~/Downloads/MillionSongSubset`).
+  - If you have `MillionSongSubset/data/A/`, … use: `--data-dir MillionSongSubset/data`.
+
+- **Option B variant — you put the whole `MillionSongSubset` inside repo’s `data/`**  
+  If you have `song-recommender/data/MillionSongSubset/A/...`, use:
+  ```bash
+  python scripts/build_index.py --data-dir data/MillionSongSubset
+  ```
+  If you have `song-recommender/data/MillionSongSubset/data/A/...`, use:
+  ```bash
+  python scripts/build_index.py --data-dir data/MillionSongSubset/data
+  ```
 
 The repo’s `data/` folder is in `.gitignore`—the dataset is not committed to git.
+
+### 4.4 Verify before Step 5
+
+Check that `.h5` files are under the path you’ll use as `--data-dir`:
+
+- **If you used Option A** (letter folders in repo’s `data/`):
+  ```bash
+  find data -name "*.h5" | head -5
+  ```
+  You should see paths like `data/A/R/R/TRXXXXX.h5` (or similar).
+
+- **If you used Option B** with the subset in the repo (e.g. `MillionSongSubset/A/...`):
+  ```bash
+  find MillionSongSubset -name "*.h5" | head -5
+  ```
+  You should see paths like `MillionSongSubset/A/R/R/TRXXXXX.h5`.
+
+If you see `.h5` files, you’re ready for Step 5. If not, the path is wrong—make sure `--data-dir` points at the folder that **directly contains** the letter folders (`A`, `B`, …).
 
 ---
 
